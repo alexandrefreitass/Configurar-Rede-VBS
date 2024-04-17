@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=10">
+
+    <title>Configuração de Rede - Polícia Militar SP</title>
+    <HTA:APPLICATION
+        APPLICATIONNAME="Configuração de Rede Polícia Militar SP"
+        BORDER="thin"
+        BORDERSTYLE="normal"
+        ICON="images\network.ico"
+        SCROLL="no"
+        SINGLEINSTANCE="yes"
+        WINDOWSTATE="normal"
+        SYSMENU="yes"
+        MAXIMIZEBUTTON="no"
+        MINIMIZEBUTTON="yes"
+        NAVIGABLE="no"
+        SELECTION="no"
+        SHOWINTASKBAR="yes"
+        CONTEXTMENU="no">
+    <style>
+        body, input {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            border: 1px solid red;
+        }
+        .container {
+            padding: 20px;
+            border: 1px solid red;
+        }
+        button {
+            padding: 5px 10px;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid red;
+        }
+
+        input.buttonconfigurar {
+            padding: 6px 16px;
+            font-size: 10px; /* Fonte padrão para o texto do input */
+            color: gray;    /* Cor padrão para o texto do input */
+            height: 13px;    /* Altura fixa para evitar redução */
+            line-height: 15px; /* Alinhamento vertical do texto dentro do input */
+            border: 1px solid red;
+        }
+
+    </style>
+</head>
+<body onload="resizeWindow()">
+     <div class="container">
+            <h3>Selecione uma das opções abaixo</h3>
+            <h4>Para configuração da sua rede Ethernet:</h4><br/><br/>
+            <button onclick="configureEstatico()">Setar IP Estático</button>
+            <button onclick="configureDHCP()">Setar IP DHCP</button>
+            <button onclick="configureProxy()">Configurar Proxy</button>
+            <button onclick="closeApp()">Encerrar</button>
+            
+            <br/>
+            <div id="inputArea"></div>
+            <br/>
+            <p id="output"></p>
+        </div>
+
+    <script type="text/vbscript">
+
+        Dim choice
+        Dim wmiService
+        Dim netAdapters
+        Dim netAdapter
+        Dim InputipAddress
+        Dim ipAddresses
+        Dim subnetMask
+        Dim gateway
+        Dim gatewayMetric
+        Dim dnsServers
+        Dim enableResult
+        Dim gatewayResult
+        Dim dnsResult
+        Dim computer
+        Dim configAdapters
+        Dim configAdapter
+        Dim proxyChoice
+        Dim shell
+        Dim html
+        Dim arrDNSServers
+        Dim dnsResultDHCP
+        subnetMask = Array("255.255.255.0")
+        gateway = Array("10.51.114.1")
+        gatewayMetric = Array(1)
+        dnsServers = Array("10.61.255.62")
+        computer = "."
+        
+        Sub resizeWindow()
+            window.resizeTo 600,600
+        End Sub
+
+        Sub resetInterface()
+            ' Limpar a área de output e mostrar as opções iniciais
+            document.getElementById("output").innerText = ""
+            html = ""
+            document.getElementById("inputArea").innerHTML = html
+        End Sub
+
+        Sub configureEstatico()
+            
+            html = "<br/><br/>Por favor, insira o endereço IP desejado:<br/><br/>" & _
+                "<input type='text' id='ipInput' placeholder='Exemplo:10.51.114.128' class='buttonconfigurar'>" & _
+                "<button onclick='setFixedIP()'>Configurar IP</button>"
+            document.getElementById("inputArea").innerHTML = html
+        End Sub
+
+        Sub configureDHCP()
+            
+            html = "<br/><br/>Por favor, confirme se deseja alterar o adaptador de rede para DHCP:<br/><br/>" & _
+                "<button onclick='setDHCP()'>Confirmar</button>" & _
+                "<button onclick='resetInterface()'>Cancelar</button>" 
+            document.getElementById("inputArea").innerHTML = html
+        End Sub
+
+        Sub configureProxy()
+            
+            html = "<br/><br/>Por favor, escolha uma das opções para modificar o Proxy:<br/><br/>" & _
+                "<button onclick='enableProxy()'>Habilitar o Proxy</button>" & _
+                "<button onclick='disableProxy()'>Desabilitar o Proxy</button>" & _
+                "<button onclick='resetInterface()'>Cancelar</button>" 
+            document.getElementById("inputArea").innerHTML = html
+        End Sub
+
+        Sub setFixedIP()
+            
+            InputipAddress = document.getElementById("ipInput").value
+            ipAddresses = Array(InputipAddress)
+            
+            ' Criando o objeto WMI
+            Set wmiService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & computer & "\root\cimv2")
+            ' Consultando adaptadores Ethernet ativos (AdapterTypeId = 0 para Ethernet)
+            Set netAdapters = wmiService.ExecQuery("SELECT * FROM Win32_NetworkAdapter WHERE AdapterTypeId = 0 AND NetEnabled = True")
+            
+            ' Iterando sobre os adaptadores Ethernet
+            For Each netAdapter In netAdapters
+                ' Encontrar a configuração correspondente para cada adaptador Ethernet
+                Set configAdapters = wmiService.ExecQuery("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE Index = " & netAdapter.Index & " AND IPEnabled = True")
+                For Each configAdapter In configAdapters
+                    enableResult = configAdapter.EnableStatic(ipAddresses, subnetMask)
+                    gatewayResult = configAdapter.SetGateways(gateway, gatewayMetric)
+                    dnsResult = configAdapter.SetDNSServerSearchOrder(dnsServers)
+
+                    If enableResult = 0 Then
+                        document.getElementById("output").innerText = "IP e DNS configurado com sucesso."   
+                    Else
+                        document.getElementById("output").innerText = "Erro ao configurar IP e DNS.Verifique se o adaptador de rede está Habilitado"
+                    End If
+                Next
+            Next
+        End Sub
+
+
+        Sub setDHCP()
+            
+            ' Criando o objeto WMI
+            Set wmiService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\" & computer & "\root\cimv2")
+            ' Consultando adaptadores Ethernet ativos (AdapterTypeId = 0 para Ethernet)
+            Set netAdapters = wmiService.ExecQuery("SELECT * FROM Win32_NetworkAdapter WHERE AdapterTypeId = 0 AND NetEnabled = True")
+            
+            ' Iterando sobre os adaptadores Ethernet
+            For Each netAdapter In netAdapters
+                ' Encontrar a configuração correspondente para cada adaptador Ethernet
+                Set configAdapters = wmiService.ExecQuery("SELECT * FROM Win32_NetworkAdapterConfiguration WHERE Index = " & netAdapter.Index & " AND IPEnabled = True")
+                ' Iterando sobre os adaptadores Ethernet
+                For Each configAdapter In configAdapters
+                    ' Tentando habilitar DHCP
+                    enableResult = configAdapter.EnableDHCP()
+                    ' Verificando resultado
+                    If enableResult = 0 Then
+                        arrDNSServers = Null
+                        dnsResultDHCP = configAdapter.SetDNSServerSearchOrder(arrDNSServers)
+                        If dnsResultDHCP = 0 Then
+                            document.getElementById("output").innerText = "DHCP e DNS configurados com sucesso."
+                        Else
+                            document.getElementById("output").innerText = "DHCP configurado, mas falha ao redefinir DNS. Código de erro: " & dnsResultDHCP
+                        End If
+                    Else
+                        document.getElementById("output").innerText = "Erro ao configurar DHCP. Código de erro: " & enableResult
+                    End If
+                Next
+            Next
+            Set netAdapters = Nothing
+            Set configAdapters = Nothing
+            Set wmiService = Nothing
+
+        End Sub
+
+        Sub enableProxy()
+            Set shell = CreateObject("WScript.Shell")
+            shell.RegWrite "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyEnable", 1, "REG_DWORD"
+            shell.RegWrite "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyServer", "proxy5.policiamilitar.sp.gov.br:3128", "REG_SZ"
+            shell.RegWrite "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyOverride", "citrix.policiamilitar.sp.gov.br;niceinform.intranet.policiamilitar.sp.gov.br;10.*<local>", "REG_SZ"
+            document.getElementById("output").innerText = "Proxy habilitado com sucesso."
+            Set shell = Nothing
+        End Sub
+
+        Sub disableProxy()
+            Set shell = CreateObject("WScript.Shell")
+            shell.RegWrite "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyEnable", 0, "REG_DWORD"
+            document.getElementById("output").innerText = "Proxy desabilitado com sucesso."
+            Set shell = Nothing
+        End Sub
+
+        Sub closeApp()
+            window.close()
+        End Sub
+    </script>
+</body>
+</html>
