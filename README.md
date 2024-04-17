@@ -1,7 +1,7 @@
 ## Configuração de Rede - Polícia Militar SP
 
 <div align="center">
-    <img src="https://github.com/alexandrefreitass//assets/109884524/b9dc215e-2f08-4a46-a900-74fb7830dd35" />
+    <img src="https://github.com/alexandrefreitass/configurar-rede-vbs/assets/109884524/000d887c-61aa-4590-bbb8-1619f6f7a1c8" />
 </div>
 
 Este projeto consiste em uma aplicação desenvolvida em VBS e HTA para simplificar o processo de configuração de redes na Polícia Militar do Estado de São Paulo. Com essa ferramenta, é possível configurar IPs, gateways, DNS e proxies de forma rápida e eficiente, substituindo o processo manual anterior que era mais demorado e propenso a erros.
@@ -81,7 +81,7 @@ Configurar Rede
 Abaixo como habilitar a permissão de administrador no atalho:
 
 <div align="center">
-    <img src="https://github.com/alexandrefreitass//assets/109884524/b9dc215e-2f08-4a46-a900-74fb7830dd35" />
+    <img src="https://github.com/alexandrefreitass/configurar-rede-vbs/assets/109884524/f46bd0a2-1a10-42e9-8201-cde1db438900" />
 </div>
 
 ### Contribuições
