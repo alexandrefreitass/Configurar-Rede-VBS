@@ -3,7 +3,7 @@
 <div align="center">
     <img src="https://github.com/alexandrefreitass/configurar-rede-vbs/assets/109884524/000d887c-61aa-4590-bbb8-1619f6f7a1c8" />
 </div>
-
+<br/><br/>
 Este projeto consiste em uma aplicação desenvolvida em VBS e HTA para simplificar o processo de configuração de redes na Polícia Militar do Estado de São Paulo. Com essa ferramenta, é possível configurar IPs, gateways, DNS e proxies de forma rápida e eficiente, substituindo o processo manual anterior que era mais demorado e propenso a erros.
 
 ### Características
