@@ -89,7 +89,7 @@ Abaixo como habilitar a permissão de administrador no atalho:
 Contribuições são bem-vindas! Para contribuir, por favor, crie um fork do repositório, faça suas alterações e submeta um pull request.
 
 ### Licença
-Este projeto está sob a licença MIT. Consulte o arquivo <a href="https://github.com/alexandrefreitass/Configurar-Rede-VBS/blob/master/LICENSE.txt">LICENSE</a> para obter mais detalhes.
+Este projeto está sob a licença MIT. Consulte o arquivo <a href="https://github.com/alexandrefreitass/Configurar-Rede-VBS/blob/master/LICENSE">LICENSE</a> para obter mais detalhes.
 
 ### Contato
 Para mais informações, entre em contato através do email: xandy4321@hotmail.com.
